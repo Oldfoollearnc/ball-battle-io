@@ -539,7 +539,7 @@ function quitGame(){
   if(replayId)cancelAnimationFrame(replayId);if(spectateId)cancelAnimationFrame(spectateId);
   escHint.style.display='none';spectateHint.textContent='';
   deathScreen.style.display='none';startScreen.style.display='flex';
-  startDemo();
+  startDemo();startBGM();
 }
 
 // ============ UPDATE ============
@@ -1044,34 +1044,37 @@ function startBGM(){
   if(!bgmCtx){
     try{
       bgmCtx=new(window.AudioContext||window.webkitAudioContext)();
-      const master=bgmCtx.createGain();master.gain.value=.12;master.connect(bgmCtx.destination);bgmGain=master;
-      const pad=bgmCtx.createOscillator();pad.type='sawtooth';pad.frequency.value=110;
-      const pad2=bgmCtx.createOscillator();pad2.type='sawtooth';pad2.frequency.value=330;
-      const padGain=bgmCtx.createGain();padGain.gain.value=.2;
-      const padFilter=bgmCtx.createBiquadFilter();padFilter.type='lowpass';padFilter.frequency.value=250;padFilter.Q.value=2;
-      const padLFO=bgmCtx.createOscillator();padLFO.type='sine';padLFO.frequency.value=.12;
-      const lfoGain=bgmCtx.createGain();lfoGain.gain.value=180;
-      padLFO.connect(lfoGain);lfoGain.connect(padFilter.frequency);
-      pad.connect(padGain);pad2.connect(padGain);padGain.connect(padFilter);padFilter.connect(master);
-      padLFO.start();pad.start();pad2.start();
-      const bass=bgmCtx.createOscillator();bass.type='triangle';bass.frequency.value=82.5;
-      const bassGain=bgmCtx.createGain();bassGain.gain.value=0;
-      const bassLFO=bgmCtx.createOscillator();bassLFO.type='square';bassLFO.frequency.value=1.2;
-      const bassLfoGain=bgmCtx.createGain();bassLfoGain.gain.value=.3;
-      bassLFO.connect(bassLfoGain);bassLfoGain.connect(bassGain.gain);
-      bass.connect(bassGain);bassGain.connect(master);
-      bassLFO.start();bass.start();
-      const arp=bgmCtx.createOscillator();arp.type='triangle';arp.frequency.value=440;
-      const arpGain=bgmCtx.createGain();arpGain.gain.value=0;
-      const arpLFO=bgmCtx.createOscillator();arpLFO.type='sine';arpLFO.frequency.value=2.5;
-      const arpLfoGain=bgmCtx.createGain();arpLfoGain.gain.value=.08;
-      arpLFO.connect(arpLfoGain);arpLfoGain.connect(arpGain.gain);
-      const arpLFO2=bgmCtx.createOscillator();arpLFO2.type='sine';arpLFO2.frequency.value=.15;
-      const arpLfoGain2=bgmCtx.createGain();arpLfoGain2.gain.value=100;
-      arpLFO2.connect(arpLfoGain2);arpLfoGain2.connect(arp.frequency);
-      arp.connect(arpGain);arpGain.connect(master);
-      arpLFO.start();arpLFO2.start();arp.start();
-      bgmCtx._nodes=[pad,pad2,padLFO,bass,bassLFO,arp,arpLFO,arpLFO2];
+      const m=bgmCtx.createGain();m.gain.value=.1;m.connect(bgmCtx.destination);bgmGain=m;
+      // pad: Am chord (A3+C4+E4) with gentle tremolo
+      const p1=bgmCtx.createOscillator();p1.type='sine';p1.frequency.value=219;
+      const p2=bgmCtx.createOscillator();p2.type='sine';p2.frequency.value=261.5;
+      const p3=bgmCtx.createOscillator();p3.type='sine';p3.frequency.value=329;
+      const pg=bgmCtx.createGain();pg.gain.value=.15;
+      const pt=bgmCtx.createOscillator();pt.type='sine';pt.frequency.value=.3;
+      const ptg=bgmCtx.createGain();ptg.gain.value=.1;
+      pt.connect(ptg);ptg.connect(pg.gain);
+      p1.connect(pg);p2.connect(pg);p3.connect(pg);pg.connect(m);
+      pt.start();p1.start();p2.start();p3.start();
+      // bass: A2 with rhythmic pulse
+      const b1=bgmCtx.createOscillator();b1.type='triangle';b1.frequency.value=109.5;
+      const bg=bgmCtx.createGain();bg.gain.value=0;
+      const bl=bgmCtx.createOscillator();bl.type='square';bl.frequency.value=1.7;
+      const blg=bgmCtx.createGain();blg.gain.value=.3;
+      bl.connect(blg);blg.connect(bg.gain);
+      b1.connect(bg);bg.connect(m);
+      bl.start();b1.start();
+      // melody: pentatonic chimes (A4-C5-E5-G5-A5) with slow arp
+      const a1=bgmCtx.createOscillator();a1.type='triangle';a1.frequency.value=440;
+      const ag=bgmCtx.createGain();ag.gain.value=0;
+      const al=bgmCtx.createOscillator();al.type='sine';al.frequency.value=3.2;
+      const alg=bgmCtx.createGain();alg.gain.value=.06;
+      al.connect(alg);alg.connect(ag.gain);
+      const al2=bgmCtx.createOscillator();al2.type='sine';al2.frequency.value=.7;
+      const alg2=bgmCtx.createGain();alg2.gain.value=180;
+      al2.connect(alg2);alg2.connect(a1.frequency);
+      a1.connect(ag);ag.connect(m);
+      al.start();al2.start();a1.start();
+      bgmCtx._nodes=[p1,p2,p3,pt,b1,bl,a1,al,al2];
     }catch(e){return}
   }
   if(bgmCtx.state==='suspended')bgmCtx.resume();
