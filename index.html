@@ -1040,65 +1040,55 @@ function demoLoop(){
 }
 
 // ============ BGM ============
-let bgmReady=false;
-function initBGM(){
-  if(bgmCtx)return;
-  try{
-    bgmCtx=new(window.AudioContext||window.webkitAudioContext)();
-    const master=bgmCtx.createGain();master.gain.value=.12;master.connect(bgmCtx.destination);bgmGain=master;
-    // warm pad
-    const pad=bgmCtx.createOscillator();pad.type='sawtooth';pad.frequency.value=110;
-    const pad2=bgmCtx.createOscillator();pad2.type='sawtooth';pad2.frequency.value=330;
-    const padGain=bgmCtx.createGain();padGain.gain.value=.2;
-    const padFilter=bgmCtx.createBiquadFilter();padFilter.type='lowpass';padFilter.frequency.value=250;padFilter.Q.value=2;
-    const padLFO=bgmCtx.createOscillator();padLFO.type='sine';padLFO.frequency.value=.12;
-    const lfoGain=bgmCtx.createGain();lfoGain.gain.value=180;
-    padLFO.connect(lfoGain);lfoGain.connect(padFilter.frequency);
-    pad.connect(padGain);pad2.connect(padGain);padGain.connect(padFilter);padFilter.connect(master);
-    padLFO.start();pad.start();pad2.start();
-    // bass pulse
-    const bass=bgmCtx.createOscillator();bass.type='triangle';bass.frequency.value=82.5;
-    const bassGain=bgmCtx.createGain();bassGain.gain.value=0;
-    const bassLFO=bgmCtx.createOscillator();bassLFO.type='square';bassLFO.frequency.value=1.2;
-    const bassLfoGain=bgmCtx.createGain();bassLfoGain.gain.value=.3;
-    bassLFO.connect(bassLfoGain);bassLfoGain.connect(bassGain.gain);
-    bass.connect(bassGain);bassGain.connect(master);
-    bassLFO.start();bass.start();
-    // arp
-    const arp=bgmCtx.createOscillator();arp.type='triangle';arp.frequency.value=440;
-    const arpGain=bgmCtx.createGain();arpGain.gain.value=0;
-    const arpLFO=bgmCtx.createOscillator();arpLFO.type='sine';arpLFO.frequency.value=2.5;
-    const arpLfoGain=bgmCtx.createGain();arpLfoGain.gain.value=.08;
-    arpLFO.connect(arpLfoGain);arpLfoGain.connect(arpGain.gain);
-    const arpLFO2=bgmCtx.createOscillator();arpLFO2.type='sine';arpLFO2.frequency.value=.15;
-    const arpLfoGain2=bgmCtx.createGain();arpLfoGain2.gain.value=100;
-    arpLFO2.connect(arpLfoGain2);arpLfoGain2.connect(arp.frequency);
-    arp.connect(arpGain);arpGain.connect(master);
-    arpLFO.start();arpLFO2.start();arp.start();
-    bgmCtx._nodes=[pad,pad2,padLFO,bass,bassLFO,arp,arpLFO,arpLFO2];
-    bgmReady=true;
-  }catch(e){}
-}
 function startBGM(){
-  if(!bgmCtx)initBGM();if(!bgmCtx)return;
+  if(!bgmCtx){
+    try{
+      bgmCtx=new(window.AudioContext||window.webkitAudioContext)();
+      const master=bgmCtx.createGain();master.gain.value=.12;master.connect(bgmCtx.destination);bgmGain=master;
+      const pad=bgmCtx.createOscillator();pad.type='sawtooth';pad.frequency.value=110;
+      const pad2=bgmCtx.createOscillator();pad2.type='sawtooth';pad2.frequency.value=330;
+      const padGain=bgmCtx.createGain();padGain.gain.value=.2;
+      const padFilter=bgmCtx.createBiquadFilter();padFilter.type='lowpass';padFilter.frequency.value=250;padFilter.Q.value=2;
+      const padLFO=bgmCtx.createOscillator();padLFO.type='sine';padLFO.frequency.value=.12;
+      const lfoGain=bgmCtx.createGain();lfoGain.gain.value=180;
+      padLFO.connect(lfoGain);lfoGain.connect(padFilter.frequency);
+      pad.connect(padGain);pad2.connect(padGain);padGain.connect(padFilter);padFilter.connect(master);
+      padLFO.start();pad.start();pad2.start();
+      const bass=bgmCtx.createOscillator();bass.type='triangle';bass.frequency.value=82.5;
+      const bassGain=bgmCtx.createGain();bassGain.gain.value=0;
+      const bassLFO=bgmCtx.createOscillator();bassLFO.type='square';bassLFO.frequency.value=1.2;
+      const bassLfoGain=bgmCtx.createGain();bassLfoGain.gain.value=.3;
+      bassLFO.connect(bassLfoGain);bassLfoGain.connect(bassGain.gain);
+      bass.connect(bassGain);bassGain.connect(master);
+      bassLFO.start();bass.start();
+      const arp=bgmCtx.createOscillator();arp.type='triangle';arp.frequency.value=440;
+      const arpGain=bgmCtx.createGain();arpGain.gain.value=0;
+      const arpLFO=bgmCtx.createOscillator();arpLFO.type='sine';arpLFO.frequency.value=2.5;
+      const arpLfoGain=bgmCtx.createGain();arpLfoGain.gain.value=.08;
+      arpLFO.connect(arpLfoGain);arpLfoGain.connect(arpGain.gain);
+      const arpLFO2=bgmCtx.createOscillator();arpLFO2.type='sine';arpLFO2.frequency.value=.15;
+      const arpLfoGain2=bgmCtx.createGain();arpLfoGain2.gain.value=100;
+      arpLFO2.connect(arpLfoGain2);arpLfoGain2.connect(arp.frequency);
+      arp.connect(arpGain);arpGain.connect(master);
+      arpLFO.start();arpLFO2.start();arp.start();
+      bgmCtx._nodes=[pad,pad2,padLFO,bass,bassLFO,arp,arpLFO,arpLFO2];
+    }catch(e){return}
+  }
   if(bgmCtx.state==='suspended')bgmCtx.resume();
-  if(bgmGain)bgmGain.gain.linearRampToValueAtTime(.12,bgmCtx.currentTime+.3);
 }
 function stopBGM(){
   if(!bgmCtx)return;
-  try{if(bgmGain)bgmGain.gain.linearRampToValueAtTime(0,bgmCtx.currentTime+.5);setTimeout(()=>{if(bgmCtx&&bgmCtx._nodes){bgmCtx._nodes.forEach(n=>{try{n.stop()}catch(e){}});try{bgmCtx.close()}catch(e){}}bgmCtx=null;bgmGain=null;bgmReady=false},600)}catch(e){}
+  try{if(bgmGain)bgmGain.gain.linearRampToValueAtTime(0,bgmCtx.currentTime+.5);
+    setTimeout(()=>{if(bgmCtx&&bgmCtx._nodes){bgmCtx._nodes.forEach(n=>{try{n.stop()}catch(e){}});try{bgmCtx.close()}catch(e){}}bgmCtx=null;bgmGain=null},600)}catch(e){}
 }
 
 // resume audio context on first user interaction
-function resumeAudio(){if(bgmCtx&&bgmCtx.state==='suspended'){bgmCtx.resume();startBGM()}else if(!bgmCtx){initBGM();startBGM()}}
-window.addEventListener('click',resumeAudio,{once:true});
-window.addEventListener('keydown',resumeAudio,{once:true});
-window.addEventListener('touchstart',resumeAudio,{once:true});
+window.addEventListener('click',()=>startBGM(),{once:true});
+window.addEventListener('keydown',()=>startBGM(),{once:true});
+window.addEventListener('touchstart',()=>startBGM(),{once:true});
 
-// auto-start demo and BGM (BGM needs user interaction to start)
+// auto-start demo
 startDemo();
-// start BGM preemptively if audio context permits
-setTimeout(()=>{if(bgmCtx&&bgmCtx.state==='running')startBGM();else initBGM()},100);
 
 // stop demo when starting a real game
 const _origStart=startGame;startGame=function(n){stopDemo();_origStart(n)};
