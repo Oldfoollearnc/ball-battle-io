@@ -401,22 +401,22 @@ function saveData(){localStorage.setItem('qiuqiu_data',JSON.stringify(playerData
 
 // ============ BUFF SYSTEM (金铲铲模式) ============
 const BUFF_POOL=[
-  {id:'speed',name:'疾跑',desc:'移速 +8%',icon:'💨',tier:1,apply:bd=>{bd.speedMult*=1.08}},
-  {id:'eatRange',name:'重击',desc:'吞噬范围 +10%',icon:'👊',tier:1,apply:bd=>{bd.eatRangeMult*=1.10}},
-  {id:'sprintDur',name:'冲刺',desc:'冲刺时间 +20%',icon:'⚡',tier:1,apply:bd=>{bd.sprintDurMult*=1.20}},
-  {id:'foodGain',name:'大胃王',desc:'食物增益 +20%',icon:'🍔',tier:1,apply:bd=>{bd.foodGainMult*=1.20}},
-  {id:'bonusMass',name:'金质奖章',desc:'初始质量 +5',icon:'🏅',tier:1,apply:bd=>{bd.bonusMass+=5}},
-  {id:'spikeResist',name:'铁布衫',desc:'尖刺伤害 -25%',icon:'⛰️',tier:1,apply:bd=>{bd.spikeDmgMult*=0.75}},
-  {id:'ejectCost',name:'节能',desc:'吐球消耗 -3',icon:'💎',tier:1,apply:bd=>{bd.ejectCostReduction+=3}},
-  {id:'expBoost',name:'经验达人',desc:'经验获取 +30%',icon:'📚',tier:1,apply:bd=>{bd.expMult*=1.30}},
-  {id:'splitCd',name:'分裂',desc:'分裂冷却 -15%',icon:'🔪',tier:2,apply:bd=>{bd.splitCdMult*=0.85}},
-  {id:'sprintCd',name:'冲刺大师',desc:'冲刺冷却 -15%',icon:'💨',tier:2,apply:bd=>{bd.sprintCdMult*=0.85}},
-  {id:'superFood',name:'聚宝盆',desc:'超级食物增益 +40%',icon:'🌟',tier:2,apply:bd=>{bd.superFoodGainMult*=1.40}},
-  {id:'decayResist',name:'不灭之体',desc:'衰减减少 25%',icon:'🛡️',tier:2,apply:bd=>{bd.decayMult*=0.75}},
-  {id:'maxCell',name:'细胞分裂',desc:'最大细胞数 +1',icon:'🧬',tier:2,apply:bd=>{bd.maxCellBonus+=1}},
-  {id:'mergeSpeed',name:'坚韧',desc:'合并时间 -15%',icon:'⏳',tier:2,apply:bd=>{bd.mergeTimeMult*=0.85}},
-  {id:'regen',name:'生命源泉',desc:'每秒恢复 +0.5 质量',icon:'💚',tier:2,apply:bd=>{bd.regenRate+=0.5}},
-  {id:'sprintCost',name:'节能冲刺',desc:'冲刺消耗 -20%',icon:'🏃',tier:2,apply:bd=>{bd.sprintCostMult*=0.80}},
+  {id:'speed',name:'疾跑',desc:'移速 +15%',icon:'💨',tier:1,apply:bd=>{bd.speedMult*=1.15}},
+  {id:'eatRange',name:'重击',desc:'吞噬范围 +20%',icon:'👊',tier:1,apply:bd=>{bd.eatRangeMult*=1.20}},
+  {id:'sprintDur',name:'冲刺',desc:'冲刺时间 +35%',icon:'⚡',tier:1,apply:bd=>{bd.sprintDurMult*=1.35}},
+  {id:'foodGain',name:'大胃王',desc:'食物增益 +35%',icon:'🍔',tier:1,apply:bd=>{bd.foodGainMult*=1.35}},
+  {id:'bonusMass',name:'金质奖章',desc:'初始质量 +10',icon:'🏅',tier:1,apply:bd=>{bd.bonusMass+=10}},
+  {id:'spikeResist',name:'铁布衫',desc:'尖刺伤害 -40%',icon:'⛰️',tier:1,apply:bd=>{bd.spikeDmgMult*=0.60}},
+  {id:'ejectCost',name:'节能',desc:'吐球消耗 -5',icon:'💎',tier:1,apply:bd=>{bd.ejectCostReduction+=5}},
+  {id:'expBoost',name:'经验达人',desc:'经验获取 +50%',icon:'📚',tier:1,apply:bd=>{bd.expMult*=1.50}},
+  {id:'splitCd',name:'分裂',desc:'分裂冷却 -25%',icon:'🔪',tier:2,apply:bd=>{bd.splitCdMult*=0.75}},
+  {id:'sprintCd',name:'冲刺大师',desc:'冲刺冷却 -25%',icon:'💨',tier:2,apply:bd=>{bd.sprintCdMult*=0.75}},
+  {id:'superFood',name:'聚宝盆',desc:'超级食物增益 +70%',icon:'🌟',tier:2,apply:bd=>{bd.superFoodGainMult*=1.70}},
+  {id:'decayResist',name:'不灭之体',desc:'衰减减少 40%',icon:'🛡️',tier:2,apply:bd=>{bd.decayMult*=0.60}},
+  {id:'maxCell',name:'细胞分裂',desc:'最大细胞数 +2',icon:'🧬',tier:2,apply:bd=>{bd.maxCellBonus+=2}},
+  {id:'mergeSpeed',name:'坚韧',desc:'合并时间 -25%',icon:'⏳',tier:2,apply:bd=>{bd.mergeTimeMult*=0.75}},
+  {id:'regen',name:'生命源泉',desc:'每秒恢复 +1 质量',icon:'💚',tier:2,apply:bd=>{bd.regenRate+=1.0}},
+  {id:'sprintCost',name:'节能冲刺',desc:'冲刺消耗 -35%',icon:'🏃',tier:2,apply:bd=>{bd.sprintCostMult*=0.65}},
 ];
 function createDefaultBuffData(){return{speedMult:1,eatRangeMult:1,splitCdMult:1,sprintDurMult:1,sprintCdMult:1,foodGainMult:1,superFoodGainMult:1,bonusMass:0,decayMult:1,maxCellBonus:0,spikeDmgMult:1,mergeTimeMult:1,ejectCostReduction:0,regenRate:0,expMult:1,sprintCostMult:1,buffs:[]}}
 let buffTimer=0,buffCountdownEl=null,buffInterval=15000,buffPickCount=0;
