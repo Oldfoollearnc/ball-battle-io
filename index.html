@@ -10,6 +10,13 @@ body{background:#0a0a0a;overflow:hidden;font-family:'Microsoft YaHei',Arial,sans
 canvas{display:block;cursor:none}
 #ui{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10}
 #score{position:absolute;top:15px;left:50%;transform:translateX(-50%);color:#fff;font-size:22px;font-weight:bold;text-shadow:0 0 15px rgba(0,0,0,.9);letter-spacing:1px}
+#buffBar{position:absolute;top:44px;left:50%;transform:translateX(-50%);display:flex;gap:3px;align-items:center;pointer-events:auto;z-index:12;display:none}
+#buffBar .tag{font-size:10px;color:rgba(255,255,255,.25);margin-right:4px}
+#buffBar .b{display:inline-flex;align-items:center;gap:2px;padding:1px 6px;border-radius:8px;font-size:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);color:rgba(255,255,255,.7);white-space:nowrap}
+#buffBar .b.t2{border-color:rgba(255,215,0,.2);color:#ffd700}
+#buffBar .b .ic{font-size:11px}
+#buffBar .more{font-size:9px;color:rgba(255,255,255,.2);padding:1px 5px;background:rgba(255,255,255,.03);border-radius:6px}
+#buffBar .cd{font-size:10px;color:rgba(255,255,255,.2);margin-left:4px;padding:1px 5px;border-radius:6px;background:rgba(255,255,255,.03)}
 #escHint{position:absolute;top:12px;left:12px;color:rgba(255,255,255,.15);font-size:11px;z-index:12;display:none;letter-spacing:.5px;text-shadow:0 0 10px rgba(0,0,0,.5)}
 #leaderboard{position:absolute;top:15px;right:15px;color:#fff;font-size:13px;text-align:right;text-shadow:0 0 8px rgba(0,0,0,.9);pointer-events:auto;min-width:140px;background:rgba(0,0,0,.4);border-radius:8px;padding:8px 12px;backdrop-filter:blur(4px)}
 #leaderboard .title{font-weight:bold;margin-bottom:4px;font-size:15px;color:#ffd700}
@@ -96,6 +103,19 @@ canvas{display:block;cursor:none}
 #deathScreen button.btn-sec{background:rgba(255,255,255,.1);color:#ccc}
 #deathScreen button.btn-sec:hover{background:rgba(255,255,255,.2)}
 #spectateHint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.4);font-size:12px;z-index:11;pointer-events:none}
+#pauseScreen{position:fixed;top:0;left:0;width:100%;height:100%;display:none;z-index:85;align-items:center;justify-content:center}
+#pauseScreen.open{display:flex}
+.pause-panel{position:relative;z-index:1;background:rgba(15,15,30,.92);border:1px solid rgba(255,255,255,.06);border-radius:24px;padding:32px 40px 24px;max-width:320px;width:80vw;box-shadow:0 24px 80px rgba(0,0,0,.7);text-align:center}
+.pause-title{font-size:28px;font-weight:900;color:#fff;margin-bottom:20px}
+.pause-btns{display:flex;flex-direction:column;gap:8px}
+.pause-btn{pointer-events:auto;padding:10px 20px;font-size:14px;border:none;border-radius:12px;color:#ccc;cursor:pointer;font-weight:600;transition:all .25s;background:rgba(255,255,255,.05);font-family:inherit}
+.pause-btn:hover{background:rgba(255,255,255,.1);color:#fff;transform:translateY(-2px)}
+.pause-btn.primary{background:linear-gradient(135deg,#4ecca3,#36b37e);color:#000}
+.pause-btn.primary:hover{box-shadow:0 6px 20px rgba(78,204,163,.3)}
+.pause-btn.quit{color:rgba(255,100,100,.7)}
+.pause-btn.quit:hover{background:rgba(255,50,50,.1);color:#ff6b6b}
+.pause-hint{color:rgba(255,255,255,.15);font-size:11px;margin-top:14px}
+.pause-hint kbd{padding:0 5px;border-radius:4px;background:rgba(255,255,255,.05);color:rgba(255,255,255,.25);font-size:10px;border:none;font-family:inherit}
 #buffPanel{position:fixed;top:0;left:0;width:100%;height:100%;display:none;z-index:90;align-items:center;justify-content:center}
 #buffPanel.open{display:flex}
 .buff-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);backdrop-filter:blur(6px)}
@@ -120,8 +140,9 @@ canvas{display:block;cursor:none}
 <body>
 <canvas id="game"></canvas>
 <div id="ui">
-   <div id="score">质量: 0</div>
-  <div id="escHint">ESC 退出</div>
+    <div id="score">质量: 0</div>
+    <div id="buffBar"></div>
+  <div id="escHint">ESC 暂停</div>
   <div id="leaderboard"></div>
   <div id="killFeed"></div>
   <div id="levelDisplay"></div>
@@ -188,6 +209,18 @@ canvas{display:block;cursor:none}
     <div class="buff-time" id="buffTime"></div>
   </div>
 </div>
+<div id="pauseScreen">
+  <div class="buff-overlay"></div>
+  <div class="pause-panel">
+    <div class="pause-title">⏸ 游戏暂停</div>
+    <div class="pause-btns">
+      <button class="pause-btn primary" id="pauseResumeBtn">▶ 继续游戏</button>
+      <button class="pause-btn" id="pauseSettingsBtn">⚙ 设置</button>
+      <button class="pause-btn quit" id="pauseQuitBtn">✕ 退出到菜单</button>
+    </div>
+    <div class="pause-hint">按 <kbd>ESC</kbd> 继续</div>
+  </div>
+</div>
 <script>
 // ============ CONFIG ============
 const CFG = {
@@ -226,6 +259,7 @@ const sfxToggle=document.getElementById('sfxToggle'),mapToggle=document.getEleme
 const aiCountSel=document.getElementById('aiCount'),gameModeSel=document.getElementById('gameMode');
 const colorPicker=document.getElementById('colorPicker'),skinPicker=document.getElementById('skinPicker');
 const replayBtn=document.getElementById('replayBtn'),spectateBtn=document.getElementById('spectateBtn');
+const buffBar=document.getElementById('buffBar');
 const chatPanel=document.getElementById('chatPanel'),chatHint=document.getElementById('chatHint');
 const escHint=document.getElementById('escHint');
 const finalFood=document.getElementById('finalFood'),finalSplits=document.getElementById('finalSplits');
@@ -344,7 +378,7 @@ const BUFF_POOL=[
   {id:'sprintCost',name:'节能冲刺',desc:'冲刺消耗 -20%',icon:'🏃',tier:2,apply:bd=>{bd.sprintCostMult*=0.80}},
 ];
 function createDefaultBuffData(){return{speedMult:1,eatRangeMult:1,splitCdMult:1,sprintDurMult:1,sprintCdMult:1,foodGainMult:1,superFoodGainMult:1,bonusMass:0,decayMult:1,maxCellBonus:0,spikeDmgMult:1,mergeTimeMult:1,ejectCostReduction:0,regenRate:0,expMult:1,sprintCostMult:1,buffs:[]}}
-let buffTimer=0,buffCountdownEl=null;
+let buffTimer=0,buffCountdownEl=null,buffInterval=15000,buffPickCount=0;
 
 // ============ REPLAY ============
 let replayData=[],isReplay=false,replayFrame=0,replayId=null;
@@ -422,6 +456,7 @@ let player=null,keys={},myName='玩家',frameCount=0;
 let decayTimer=0,superFoodTimer=0,showMinimap=true,gameStartTime=0;
 let spaceHoldTime=0,lastSplitTime=0;
 let isDemo=false,demoId=null;
+let isPaused=false;
 let bgmCtx=null,bgmGain=null;
 
 // ============ ENTITIES ============
@@ -549,7 +584,7 @@ function processEating(){
     for(const p of players){if(!p.alive)continue;for(const c of p.cells){if(c.mass<1)continue;if(dist(c,sf)<c.radius){c.mass+=sf.mass*.5*(p.buffData.superFoodGainMult||1);spawnParticles(sf.x,sf.y,'#ffd700',20,6,5);sfxEat();superFoods.splice(si,1);e=true;break}}if(e)break}
   }
   for(let ei=ejected.length-1;ei>=0;ei--){const e=ejected[ei];if(!e.alive)continue;e.x+=e.vx;e.y+=e.vy;e.vx*=.95;e.vy*=.95;e.life-=.016;if(e.life<=0){e.alive=false;ejected.splice(ei,1);continue}let eaten=false;
-    for(const p of players){if(!p.alive||p.id===e.owner)continue;for(const c of p.cells){if(c.mass<1)continue;if(dist(c,e)<c.radius){c.mass+=e.mass*.4;ejected.splice(ei,1);eaten=true;break}}if(eaten)break}
+    for(const p of players){if(!p.alive)continue;for(const c of p.cells){if(c.mass<1)continue;if(dist(c,e)<c.radius){c.mass+=e.mass*.4;ejected.splice(ei,1);eaten=true;break}}if(eaten)break}
   }
   for(let i=0;i<players.length;i++){const a=players[i];if(!a.alive||!a.cells.length)continue;
     for(let j=i+1;j<players.length;j++){const b=players[j];if(!b.alive||!b.cells.length)continue;let brk=false;
@@ -615,8 +650,8 @@ function update(){
   const splitInterval=CFG.SPLIT_INTERVAL*(player.buffData.splitCdMult||1);
   if(keys[' ']&&Date.now()-lastSplitTime>splitInterval){doSplit(player);lastSplitTime=Date.now()}
 
-  // buff timer (金铲铲模式, 15s)
-  if(gameModeSel.value==='shovel'&&player.alive&&Date.now()-buffTimer>15000){
+  // buff timer (金铲铲模式)
+  if(gameModeSel.value==='shovel'&&player.alive&&Date.now()-buffTimer>buffInterval){
     buffTimer=Date.now();showBuffSelection();
   }
 
@@ -694,12 +729,18 @@ function update(){
   for(const sf of superFoods)sf.pulse+=.03;
 
   if(player.alive){
-    const scoreText=`质量: ${Math.floor(totalMass(player))}  |  得分: ${Math.floor(totalMass(player)*10)}`;
-    if(gameModeSel.value==='shovel'){
-      const remain=Math.max(0,Math.ceil((15000-(Date.now()-buffTimer))/1000));
-      const buffNames=player.ownedBuffs.length?player.ownedBuffs.map(id=>BUFF_POOL.find(b=>b.id===id)).filter(Boolean).map(b=>b.icon+b.name).join(' '):'暂无';
-      scoreEl.textContent=`${scoreText}  |  ⏳${remain}s  |  ✨${buffNames}`;
-    }else{scoreEl.textContent=scoreText}
+    scoreEl.textContent=`质量: ${Math.floor(totalMass(player))}  |  得分: ${Math.floor(totalMass(player)*10)}`;
+    if(gameModeSel.value==='shovel'&&buffBar){
+      const remain=Math.max(0,Math.ceil((buffInterval-(Date.now()-buffTimer))/1000));
+      if(player.ownedBuffs.length){
+        const MAX_VIS=5;const show=player.ownedBuffs.slice(0,MAX_VIS);
+        let html='<span class="tag">✨</span>';
+        show.forEach(id=>{const b=BUFF_POOL.find(x=>x.id===id);if(b)html+=`<span class="b${b.tier===2?' t2':''}"><span class="ic">${b.icon}</span>${b.name}</span>`});
+        if(player.ownedBuffs.length>MAX_VIS)html+=`<span class="more">+${player.ownedBuffs.length-MAX_VIS}</span>`;
+        html+=`<span class="cd">⏳${remain}s</span>`;
+        buffBar.innerHTML=html;buffBar.style.display='flex';
+      }else{buffBar.innerHTML=`<span class="cd">⏳${remain}s</span>`;buffBar.style.display='flex'}
+    }else if(buffBar){buffBar.style.display='none'}
   }
   const tm=totalMass(player);if(tm>player.maxMass)player.maxMass=tm;
   updateLeaderboard();updateLevelDisplay();
@@ -1081,7 +1122,8 @@ function startGame(name){
   if(mode==='endless'){CFG.DECAY_RATE=0;CFG.DECAY_INTERVAL=999999;CFG.SUPER_FOOD_INTERVAL=15000}
   if(mode==='shovel'){
     player.buffData=createDefaultBuffData();player.ownedBuffs=[];
-    buffTimer=Date.now();CFG.DECAY_RATE=0.003;CFG.DECAY_INTERVAL=3000;
+    buffTimer=Date.now();buffInterval=15000;buffPickCount=0;
+    CFG.DECAY_RATE=0.003;CFG.DECAY_INTERVAL=3000;CFG.SUPER_FOOD_INTERVAL=18000;
     for(let i=0;i<5;i++){const bot=createPlayer('shovel_'+i,['暴走球','狂怒球','毁灭球','混沌球','暗影'][i],true);bot.cells=[createCell(rand(100,CFG.MAP-100),rand(100,CFG.MAP-100),rand(20,35))];players.push(bot)}
   }
 
@@ -1129,15 +1171,45 @@ function selectBuff(idx,pool){
   const b=pool[idx];
   b.apply(player.buffData);
   player.ownedBuffs.push(b.id);
-  // apply bonuses that need immediate effect
   if(b.id==='bonusMass'&&player.cells.length){const mc=getMaxCell(player);mc.mass+=5;updateRadius(mc)}
   if(b.id==='maxCell'){for(const c of player.cells){c.mass+=2;updateRadius(c)}}
+  // visual burst
+  const mc=getMaxCell(player);
+  if(mc){for(let i=0;i<30;i++){const a=rand(0,Math.PI*2);particles.push({x:mc.x,y:mc.y,vx:Math.cos(a)*rand(2,8),vy:Math.sin(a)*rand(2,8),radius:rand(2,5),color:`hsl(${randI(40,60)},100%,${randI(60,80)}%)`,life:1,decay:.015})}}
+  // bots also get buffs to keep competition fierce
+  const bots=players.filter(p=>p!==player&&p.isBot&&p.alive);
+  if(bots.length){
+    const shuffled=bots.sort(()=>Math.random()-.5);
+    const count=Math.min(2,bots.length);
+    for(let i=0;i<count;i++){
+      const rb=BUFF_POOL[randI(0,BUFF_POOL.length-1)];
+      rb.apply(shuffled[i].buffData);
+      shuffled[i].ownedBuffs.push(rb.id);
+    }
+  }
+  // interval shortens each pick (15s → min 8s)
+  buffPickCount++;
+  buffInterval=Math.max(8000,15000-buffPickCount*500);
   document.getElementById('buffPanel').classList.remove('open');
   sfxEat();
   buffTimer=Date.now();
   gameRunning=true;
   announce(`✨ 获得强化: ${b.icon} ${b.name}`,'#ffd700');
 }
+
+// ============ PAUSE ============
+function togglePause(){
+  if(!gameRunning&&!isPaused)return;
+  isPaused=!isPaused;
+  document.getElementById('pauseScreen').classList.toggle('open',isPaused);
+  gameRunning=!isPaused;
+}
+document.getElementById('pauseResumeBtn').addEventListener('click',()=>{if(isPaused)togglePause()});
+document.getElementById('pauseSettingsBtn').addEventListener('click',()=>{settingsPanel.classList.toggle('open')});
+document.getElementById('pauseQuitBtn').addEventListener('click',()=>{
+  if(isPaused)togglePause();
+  quitGame();
+});
 
 // ============ GAME LOOP ============
 function gameLoop(){update();draw();animId=requestAnimationFrame(gameLoop)}
@@ -1164,7 +1236,7 @@ window.addEventListener('keydown',e=>{
   if(e.key==='w'||e.key==='W'){if(gameRunning)doEject(player)}
   if(e.key==='Shift'){e.preventDefault();if(gameRunning)doSprint(player)}
   if(e.key==='Enter'&&!isReplay&&!isSpectating){e.preventDefault();if(gameRunning&&player&&player.alive){if(chatOpen)closeChat();else openChat()}}
-  if(e.key==='Escape'){if(chatOpen){closeChat()}else if(isReplay){isReplay=false;if(replayId)cancelAnimationFrame(replayId);deathScreen.style.display='flex';spectateHint.textContent=''}else if(isSpectating){stopSpectate()}else if(gameRunning){quitGame()}}
+  if(e.key==='Escape'){if(chatOpen){closeChat()}else if(isReplay){isReplay=false;if(replayId)cancelAnimationFrame(replayId);deathScreen.style.display='flex';spectateHint.textContent=''}else if(isSpectating){stopSpectate()}else if(gameRunning&&!document.getElementById('buffPanel').classList.contains('open')){togglePause()}else if(isPaused){togglePause()}}
   // number keys for chat
   if(chatOpen){const n=parseInt(e.key);if(n>=1&&n<=CHAT_MSGS.length){e.preventDefault();sendChat(n-1)}}
   keys[e.key]=true;
