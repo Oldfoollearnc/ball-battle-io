@@ -1,101 +1,105 @@
 # 🏀 Ball Battle IO · 球球大作战
 
-> 金铲铲模式 Agar.io 网页游戏 — 单 HTML 文件，开箱即玩。
+> **金铲铲模式 Agar.io 网页游戏** · A single-file HTML5 Agar.io-style battle game with a unique card-buff system.  
+> 打开即玩，无需下载，无需服务器。 / Open and play — zero setup, zero dependencies.
 
-[![Play Now](https://img.shields.io/badge/▶_在线游玩-4ecca3?style=for-the-badge)](https://oldfoollearnc.github.io/ball-battle-io/)
+[![Play Now](https://img.shields.io/badge/▶_在线游玩_Play_Now-4ecca3?style=for-the-badge)](https://oldfoollearnc.github.io/ball-battle-io/)
 ![HTML5](https://img.shields.io/badge/HTML5-Canvas-important)
 ![Size](https://img.shields.io/badge/single_HTML-~150KB-blue)
 
 ---
 
-## 🎮 在线游玩
+## 🎮 在线游玩 / Play Online
 
-<https://oldfoollearnc.github.io/ball-battle-io/>
+**English**: [https://oldfoollearnc.github.io/ball-battle-io/](https://oldfoollearnc.github.io/ball-battle-io/)  
+**中文**: [https://oldfoollearnc.github.io/ball-battle-io/](https://oldfoollearnc.github.io/ball-battle-io/)
 
-打开即玩，无需下载、无需注册、无需服务器。
-
----
-
-## ⌨ 操作
-
-| 操作 | 按键 |
-|------|------|
-| 移动 | 🖱 鼠标 |
-| 分裂 | ␣ 空格（长按连续分裂） |
-| 吐球 | <kbd>W</kbd> |
-| 加速 | <kbd>Shift</kbd> / 右键 |
-| 聊天 | <kbd>Enter</kbd>（1-7 发送，Esc 关闭） |
-| 暂停 | <kbd>Esc</kbd> |
+Just open the link in your browser. No download, no registration, no server required.
 
 ---
 
-## ✨ 核心特性
+## ⌨ 操作 / Controls
 
-### 🃏 金铲铲模式
-- 每 **15 秒** 三选一强化符文（疾跑/重击/冲刺/大胃王/分裂/聚宝盆…）
-- 16 种 Buff（8 普通 + 8 稀有），**可无限叠加**
-- AI 对手也随机获得 Buff，并标注 Buff 数量
+| 中文 | English | Key |
+|------|---------|-----|
+| 移动 | Move | 🖱 Mouse |
+| 分裂 | Split | ␣ Space (hold for chain split) |
+| 吐球 | Eject | <kbd>W</kbd> |
+| 加速 | Sprint | <kbd>Shift</kbd> / Right-click |
+| 聊天 | Chat | <kbd>Enter</kbd> (1-7 send, Esc close) |
+| 暂停 | Pause | <kbd>Esc</kbd> |
 
-### 🎨 皮肤系统
-9 种皮肤 — 纯色 / 🔥凤凰 / ⚡雷电 / 👼天使 / 👿恶魔 / 🤖机甲 / 🌀极光 / ✨星辰 / 👻幽靈
+---
 
-- 每款皮肤有 **独特的主场粒子特效**（火焰羽翼、闪电链、光环、恶魔之眼、机械面板、极光彩带、星辰轨道、幽靈残影）
-- 皮肤等级 Lv1-5，随玩家等级解锁**更强特效**
-- 内置 **120×120 动画预览**
+## ✨ 核心特性 / Features
 
-### 🗺 地图要素
+### 🃏 金铲铲模式 / Buff System
+- **每 15 秒** 三选一强化符文 / Pick 1 of 3 buffs every **15 seconds**
+- 16 种 Buff（8 普通 + 8 稀有），**可无限叠加** / 16 buffs (8 common + 8 rare), **infinitely stackable**
+- AI 对手也随机获得 Buff / AI opponents also get random buffs
 
-| 要素 | 说明 |
+### 🎨 皮肤系统 / Skins
+9 种皮肤 / 9 skins — 纯色/Solid / 🔥凤凰/Phoenix / ⚡雷电/Thunder / 👼天使/Angel / 👿恶魔/Demon / 🤖机甲/Mech / 🌀极光/Aurora / ✨星辰/Stellar / 👻幽靈/Ghost
+
+- **独特的主场粒子特效** / Unique animated particle effects per skin (flame wings, lightning bolts, halos, demon eyes, thruster glow, aurora ribbons, orbital stars, ghost wisps)
+- **Lv1-5 等级**，随玩家等级解锁更强特效 / Level up your skin for stronger effects
+- 内置 **120×120 动画预览** / Built-in animated preview
+
+### 🗺 地图要素 / Map Features
+
+| 要素 / Feature | 说明 / Description |
 |------|------|
-| 🟢 **刺猬** | 吃掉获得 30 质量 + 触发最大分裂爆发 |
-| ⭐ **超级食物** | 每 12 秒刷新，大额质量奖励 |
-| 🌌 **秘境** | 金色漩涡传送门 → 独立副地图寻宝（💪质量/💨速度/👁️范围） |
-| 🌀 **虫洞** | 两端传送，快速穿梭地图 |
+| 🟢 **刺猬 Spike** | 吃后 +30 质量 + 分裂爆发 / Gain 30 mass + cascade split |
+| ⭐ **超级食物 Super Food** | 每 12 秒刷新，大量质量 / Spawns every 12s, high mass reward |
+| 🌌 **秘境 Secret Realm** | 金色传送门 → 副地图寻宝（💪质量/💨速度/👁️范围） / Golden portal → mini-map with treasures (mass/speed/range) |
+| 🌀 **虫洞 Wormhole** | 两端传送，快速穿梭 / Teleport between paired portals |
 
 ### 🤖 AI
-- **三个性格**：莽夫 / 憨憨 / 愣头
-- AI 成长快（吃范围 1.4×，食物增益 1.3×）
-- 但**战斗 AI 很蠢**（随机分裂、乱吐球），让玩家有爽感
+- **三个性格 / 3 Personalities**：莽夫/Berserker · 憨憨/Silly · 愣头/Rusher
+- AI 成长快（吃范围 1.4×，食物增益 1.3×） / AI grows fast (1.4× eat range, 1.3× food gain)
+- 但**战斗 AI 很蠢**（随机分裂、乱吐球），让玩家有爽感 / But **combat AI is dumb** (random splits, random eject) — you have the advantage
 
-### ⏱ 随时间翻倍
-- 每过 1 分钟食物增益 **翻倍**（2× → 4× → 8× → 16× …），无上限
-- 系统通知每次翻倍等级
+### ⏱ 随时间翻倍 / Time Multiplier
+- 每过 1 分钟食物增益 **翻倍**，无上限 / Food value **doubles every minute**, no cap (2× → 4× → 8× → 16× …)
+- 系统通知每次翻倍 / System notification on each level-up
 
-### 🏆 成就 & 排行榜
-- 10 项成就解锁
-- 实时 Top 10 排行榜
-  - 🥇 #1：皇冠 + 金色光环
-  - 🥈🥉 #2-3：银色/铜色光圈
-  - 所有前十：名字金色发光 + 闪烁粒子
+### 🏆 排行榜 / Leaderboard
+- 实时 Top 10 / Live top-10 ranking
+  - 🥇 #1：皇冠 + 金色光环 / Crown + gold aura
+  - 🥈🥉 #2-3：银色/铜色光圈 / Silver/bronze ring
+  - 前十：名字金色发光 + 闪烁粒子 / Golden glowing name + sparkle particles
 
-### 🎯 爽感反馈
-- **震屏**：击杀敌人、吃超级食物触发
-- **连杀播报**：5 秒内连续击杀 → 双杀/三杀/四杀/五杀/超神
-- **爆炸粒子**：每次击杀大量粒子特效
-- **爆炸效果**：AI 死亡时细胞爆裂飞散
+### 🎯 爽感反馈 / Satisfying Feedback
+- **震屏 Screen Shake**：击杀 / 超级食物触发 / On kill or super food eat
+- **连杀播报 Kill Streaks**：5 秒内连续击杀 / 5s window → Double/Triple/Quadra/Penta/Godlike
+- **爆炸粒子 Explosion FX**：AI 死亡时细胞爆裂飞散 / Cells burst on AI death
 
-### 🔊 音效 & BGM
-- 8 种合成音效（吃/分裂/吐球/加速/死亡/成就…）
-- 和弦铺底 + 贝斯脉冲 + 五声音阶旋律 BGM
+### 🔊 音效 / Audio
+- 8 种合成音效 / 8 synthesized SFX (eat, split, eject, sprint, death, achievement…)
+- BGM：和弦铺底 + 贝斯脉冲 + 五声音阶 / Chord pads + bass pulse + pentatonic melody
 
-### 🛠 其他
-- 📺 **回放系统**：记录最近 5 分钟，死后可看
-- 👁 **观战模式**：死后可观看第一名
-- 🗺 **增强小地图**：显示玩家名、虫洞连接线、图例
-- 📱 **触屏支持**
+### 🛠 其他 / Extras
+- 📺 **回放 Replay**：记录最近 5 分钟 / Records last 5 minutes
+- 👁 **观战 Spectate**：死后观看第一名 / Watch the leader after death
+- 🗺 **增强小地图 Enhanced Minimap**：玩家名、虫洞连接、图例 / Player names, wormhole lines, legend
+- 📱 **触屏支持 Touch Support**
+- 🏆 **成就系统 Achievements**：10 项成就 / 10 achievements
 
 ---
 
-## 🚀 本地运行
+## 🚀 本地运行 / Run Locally
 
-直接双击 `index.html` 在浏览器打开，**零依赖，零构建**。
+直接双击 `index.html`，**零依赖，零构建**。  
+Just double-click `index.html` — **no build tools, no dependencies**.
 
 ```bash
 git clone https://github.com/Oldfoollearnc/ball-battle-io.git
 cd ball-battle-io
-# 双击 index.html 即可
+# open index.html in your browser
 ```
 
-## 📄 许可
+---
+
+## 📄 许可 / License
 
 MIT
