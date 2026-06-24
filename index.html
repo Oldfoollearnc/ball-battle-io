@@ -917,16 +917,15 @@ function draw(){
       ctx.strokeStyle='rgba(180,130,255,.25)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(w.x,w.y,rp*1.2,0,Math.PI*2);ctx.stroke();
     }
   }
-  const vc={x:camera.x-W2/zoom,y:camera.y-H2/zoom,w:W()/zoom*2,h:H()/zoom*2};
-  for(const s of spikes){if(s.x>vc.x&&s.x<vc.x+vc.w&&s.y>vc.y&&s.y<vc.y+vc.h)drawSpike(s)}
-  for(const f of foods){if(f.x>vc.x&&f.x<vc.x+vc.w&&f.y>vc.y&&f.y<vc.y+vc.h){ctx.beginPath();ctx.arc(f.x,f.y,f.radius,0,Math.PI*2);ctx.fillStyle=f.color;ctx.fill();ctx.strokeStyle='rgba(0,0,0,.2)';ctx.lineWidth=1;ctx.stroke()}}
-  for(const sf of superFoods){if(sf.x>vc.x&&sf.x<vc.x+vc.w&&sf.y>vc.y&&sf.y<vc.y+vc.h){const pr=sf.radius+Math.sin(sf.pulse)*3;ctx.beginPath();ctx.arc(sf.x,sf.y,pr,0,Math.PI*2);const g=ctx.createRadialGradient(sf.x-4,sf.y-4,0,sf.x,sf.y,pr);g.addColorStop(0,'#fffbe6');g.addColorStop(.3,'#ffd700');g.addColorStop(1,'#b8860b');ctx.fillStyle=g;ctx.fill();ctx.shadowColor='#ffd700';ctx.shadowBlur=20;ctx.strokeStyle='rgba(255,215,0,.6)';ctx.lineWidth=2;ctx.stroke();ctx.shadowBlur=0}}
-  for(const e of ejected){if(e.x>vc.x&&e.x<vc.x+vc.w&&e.y>vc.y&&e.y<vc.y+vc.h){
+  for(const s of spikes)drawSpike(s);
+  for(const f of foods){ctx.beginPath();ctx.arc(f.x,f.y,f.radius,0,Math.PI*2);ctx.fillStyle=f.color;ctx.fill();ctx.strokeStyle='rgba(0,0,0,.2)';ctx.lineWidth=1;ctx.stroke()}
+  for(const sf of superFoods){const pr=sf.radius+Math.sin(sf.pulse)*3;ctx.beginPath();ctx.arc(sf.x,sf.y,pr,0,Math.PI*2);const g=ctx.createRadialGradient(sf.x-4,sf.y-4,0,sf.x,sf.y,pr);g.addColorStop(0,'#fffbe6');g.addColorStop(.3,'#ffd700');g.addColorStop(1,'#b8860b');ctx.fillStyle=g;ctx.fill();ctx.shadowColor='#ffd700';ctx.shadowBlur=20;ctx.strokeStyle='rgba(255,215,0,.6)';ctx.lineWidth=2;ctx.stroke();ctx.shadowBlur=0}
+  for(const e of ejected){
     const grad=ctx.createRadialGradient(e.x-2,e.y-2,0,e.x,e.y,e.radius);
     if(e.skin!=='none'){const fc=skinForeColor(e.skin);grad.addColorStop(0,'#fff');grad.addColorStop(.5,fc);grad.addColorStop(1,darkenColor(e.color,40))}
     else{grad.addColorStop(0,'#fff');grad.addColorStop(.5,e.color);grad.addColorStop(1,darkenColor(e.color,40))}
     ctx.beginPath();ctx.arc(e.x,e.y,e.radius,0,Math.PI*2);ctx.fillStyle=grad;ctx.globalAlpha=.8;ctx.fill();ctx.globalAlpha=1
-  }}
+  }
   const allCells=[];for(const p of players){if(!p.alive)continue;for(const c of p.cells){if(c.mass>1)allCells.push({cell:c,player:p})}}
   allCells.sort((a,b)=>a.cell.mass-b.cell.mass);
   for(const {cell:c,player:p} of allCells)drawCell(c,p);
