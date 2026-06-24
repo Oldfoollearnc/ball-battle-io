@@ -233,7 +233,7 @@ const CFG = {
   SUPER_FOOD_INTERVAL: 25000,
   SPIKE_COUNT: 30,
   BOT_COUNT: 14,
-  BASE_SPEED: 3.8,
+  BASE_SPEED: 5.0,
   SPRINT_MULTIPLIER: 3,
   SPRINT_DURATION: 1500,
   SPRINT_COST: 0.15,
@@ -499,6 +499,7 @@ let decayTimer=0,superFoodTimer=0,showMinimap=true,gameStartTime=0;
 let spaceHoldTime=0,lastSplitTime=0;
 let isDemo=false,demoId=null;
 let isPaused=false;
+let shakeIntensity=0,killStreak=0,lastKillTime=0;
 let bgmCtx=null,bgmGain=null;
 
 // ============ ENTITIES ============
@@ -623,7 +624,7 @@ function processEating(){
     for(const p of players){if(!p.alive)continue;for(const c of p.cells){if(c.mass<1)continue;updateRadius(c);const eatRange=c.radius*(p.buffData.eatRangeMult||1);if(dist(c,f)<eatRange){c.mass+=f.mass*.6*(p.buffData.foodGainMult||1);p.foodEaten++;spawnParticles(f.x,f.y,f.color,4,3,3);if(p===player)sfxEat();foods.splice(fi,1);e=true;break}}if(e)break}
   }
   for(let si=superFoods.length-1;si>=0;si--){const sf=superFoods[si];let e=false;
-    for(const p of players){if(!p.alive)continue;for(const c of p.cells){if(c.mass<1)continue;if(dist(c,sf)<c.radius){c.mass+=sf.mass*.8*(p.buffData.superFoodGainMult||1);spawnParticles(sf.x,sf.y,'#ffd700',20,6,5);sfxEat();superFoods.splice(si,1);e=true;break}}if(e)break}
+    for(const p of players){if(!p.alive)continue;for(const c of p.cells){if(c.mass<1)continue;if(dist(c,sf)<c.radius){c.mass+=sf.mass*.8*(p.buffData.superFoodGainMult||1);spawnParticles(sf.x,sf.y,'#ffd700',30,8,6);if(p===player)shakeIntensity=4;sfxEat();superFoods.splice(si,1);e=true;break}}if(e)break}
   }
   for(let ei=ejected.length-1;ei>=0;ei--){const e=ejected[ei];if(!e.alive)continue;e.x+=e.vx;e.y+=e.vy;e.vx*=.95;e.vy*=.95;e.life-=.016;if(e.life<=0){e.alive=false;ejected.splice(ei,1);continue}let eaten=false;
     for(const p of players){if(!p.alive)continue;for(const c of p.cells){if(c.mass<1)continue;if(dist(c,e)<c.radius){c.mass+=e.mass*.4;ejected.splice(ei,1);eaten=true;break}}if(eaten)break}
@@ -633,7 +634,13 @@ function processEating(){
       for(let ai=0;ai<a.cells.length&&!brk;ai++){for(let bi=0;bi<b.cells.length&&!brk;bi++){const ca=a.cells[ai],cb=b.cells[bi];if(ca.mass<1||cb.mass<1)continue;const d=dist(ca,cb);
         const bg=ca.mass>cb.mass?ca:cb,sm=ca.mass>cb.mass?cb:ca,ob=ca.mass>cb.mass?a:b,os=ca.mass>cb.mass?b:a;
         if(d<bg.radius-sm.radius*.3&&bg.mass>sm.mass*1.12){bg.mass+=sm.mass*.5;updateRadius(bg);sm.mass=0;ob.kills++;
-          if(!os.isBot){gameOver(os);return}spawnParticles(sm.x,sm.y,os.color,18,7,5);announce(`${ob.name} 吞噬了 ${os.name}`,'#ff6b6b');sfxEatPlayer();
+          if(ob===player){
+            shakeIntensity=12;killStreak=Date.now()-lastKillTime<5000?killStreak+1:1;lastKillTime=Date.now();
+            const sn=['','','双杀！','三杀！','四杀！','五杀！','超神！'];const si=Math.min(killStreak,6);
+            if(killStreak>=2)announce(`🔥 ${sn[si]}`,'#ff4500');
+          }
+          if(!os.isBot){gameOver(os);return}
+          spawnParticles(sm.x,sm.y,os.color,40,10,8);spawnParticles(sm.x,sm.y,'#ffd700',15,7,5);announce(`${ob.name} 吞噬了 ${os.name}`,'#ff6b6b');sfxEatPlayer();
           a.cells=a.cells.filter(c=>c.mass>1);b.cells=b.cells.filter(c=>c.mass>1);
           if(!b.cells.length&&b.isBot){b.cells=[createCell(rand(200,CFG.MAP-200),rand(200,CFG.MAP-200),rand(15,30))];b.kills=0}
           if(!a.cells.length&&a.isBot){a.cells=[createCell(rand(200,CFG.MAP-200),rand(200,CFG.MAP-200),rand(15,30))];a.kills=0}
@@ -842,6 +849,10 @@ function update(){
 function draw(){
   const W2=W(),H2=H();
   ctx.fillStyle='#0a0a0a';ctx.fillRect(0,0,W2,H2);
+  if(shakeIntensity>0){
+    const sx=(Math.random()-.5)*shakeIntensity,sy=(Math.random()-.5)*shakeIntensity;
+    ctx.translate(sx,sy);shakeIntensity*=.85;if(shakeIntensity<.8)shakeIntensity=0;
+  }
   ctx.save();const cx=camera.x+W2/2,cy=camera.y+H2/2;ctx.translate(W2/2,H2/2);ctx.scale(zoom,zoom);ctx.translate(-cx,-cy);
   drawBackground();drawGrid();
   ctx.strokeStyle='rgba(255,50,50,.3)';ctx.lineWidth=4;ctx.strokeRect(0,0,CFG.MAP,CFG.MAP);
@@ -1181,6 +1192,7 @@ function updateLevelDisplay(){
 
 // ============ GAME OVER ============
 function gameOver(victim){
+  killStreak=0;
   gameRunning=false;if(animId)cancelAnimationFrame(animId);
   escHint.style.display='none';
   const mass=Math.floor(totalMass(player));
@@ -1209,7 +1221,7 @@ function startGame(name){
   myName=name||'玩家';
   startScreen.style.display='none';deathScreen.style.display='none';
   foods=[];spikes=[];superFoods=[];ejected=[];players=[];particles=[];replayData=[];
-  blackHoles=[];wormholes=[];bhTimer=Date.now();whTimer=Date.now();
+  blackHoles=[];wormholes=[];bhTimer=Date.now();whTimer=Date.now();killStreak=0;shakeIntensity=0;
   player=null;camera={x:0,y:0};frameCount=0;decayTimer=0;superFoodTimer=0;
   isReplay=false;isSpectating=false;escHint.style.display='block';
   if(replayId)cancelAnimationFrame(replayId);if(spectateId)cancelAnimationFrame(spectateId);
