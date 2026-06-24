@@ -656,10 +656,11 @@ function processEating(){
       }}
     }
   }
-  for(const sp of spikes){for(const p of players){if(!p.alive)continue;for(let ci=0;ci<p.cells.length;ci++){const c=p.cells[ci];if(c.mass<1)continue;if(dist(c,sp)<(c.radius+sp.radius)*.7){
+  for(let si=spikes.length-1;si>=0;si--){const sp=spikes[si];for(const p of players){if(!p.alive)continue;for(let ci=0;ci<p.cells.length;ci++){const c=p.cells[ci];if(c.mass<1)continue;if(dist(c,sp)<(c.radius+sp.radius)*.7){
     c.mass+=sp.mass;updateRadius(c);spawnParticles(sp.x,sp.y,'#2ecc71',20,8,5);sfxSplit();
     const maxCells=CFG.MAX_CELLS+(p.buffData.maxCellBonus||0);
     while(p.cells.length<maxCells){const big=getMaxCell(p);if(!big||big.mass<CFG.MIN_SPLIT_MASS*2)break;const half=big.mass/2;big.mass=half;updateRadius(big);const a=rand(0,Math.PI*2);const nc=createCell(big.x+Math.cos(a)*big.radius*1.5,big.y+Math.sin(a)*big.radius*1.5,half);nc.vx=Math.cos(a)*12;nc.vy=Math.sin(a)*12;nc.lastSplit=0;p.cells.push(nc)}
+    spikes.splice(si,1);spikes.push(createSpike());break
   }}}}
 }
 
