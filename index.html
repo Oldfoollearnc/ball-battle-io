@@ -871,12 +871,14 @@ function update(){
 // ============ DRAW ============
 function draw(){
   const W2=W(),H2=H();
+  ctx.setTransform(1,0,0,1,0,0);
   ctx.fillStyle='#0a0a0a';ctx.fillRect(0,0,W2,H2);
   ctx.save();
   if(shakeIntensity>0){
     const sx=(Math.random()-.5)*shakeIntensity,sy=(Math.random()-.5)*shakeIntensity;
     ctx.translate(sx,sy);shakeIntensity*=.85;if(shakeIntensity<.8)shakeIntensity=0;
   }
+  try{
   const cx=camera.x+W2/2,cy=camera.y+H2/2;ctx.translate(W2/2,H2/2);ctx.scale(zoom,zoom);ctx.translate(-cx,-cy);
   drawBackground();drawGrid();
   ctx.strokeStyle='rgba(255,50,50,.3)';ctx.lineWidth=4;ctx.strokeRect(0,0,CFG.MAP,CFG.MAP);
@@ -921,15 +923,16 @@ function draw(){
   for(const f of foods){ctx.beginPath();ctx.arc(f.x,f.y,f.radius,0,Math.PI*2);ctx.fillStyle=f.color;ctx.fill();ctx.strokeStyle='rgba(0,0,0,.2)';ctx.lineWidth=1;ctx.stroke()}
   for(const sf of superFoods){const pr=sf.radius+Math.sin(sf.pulse)*3;ctx.beginPath();ctx.arc(sf.x,sf.y,pr,0,Math.PI*2);const g=ctx.createRadialGradient(sf.x-4,sf.y-4,0,sf.x,sf.y,pr);g.addColorStop(0,'#fffbe6');g.addColorStop(.3,'#ffd700');g.addColorStop(1,'#b8860b');ctx.fillStyle=g;ctx.fill();ctx.shadowColor='#ffd700';ctx.shadowBlur=20;ctx.strokeStyle='rgba(255,215,0,.6)';ctx.lineWidth=2;ctx.stroke();ctx.shadowBlur=0}
   for(const e of ejected){
+    const col=e.skin?skinForeColor(e.skin):e.color;
     const grad=ctx.createRadialGradient(e.x-2,e.y-2,0,e.x,e.y,e.radius);
-    if(e.skin!=='none'){const fc=skinForeColor(e.skin);grad.addColorStop(0,'#fff');grad.addColorStop(.5,fc);grad.addColorStop(1,darkenColor(e.color,40))}
-    else{grad.addColorStop(0,'#fff');grad.addColorStop(.5,e.color);grad.addColorStop(1,darkenColor(e.color,40))}
+    grad.addColorStop(0,'#fff');grad.addColorStop(.5,col);grad.addColorStop(1,darkenColor(e.color,40));
     ctx.beginPath();ctx.arc(e.x,e.y,e.radius,0,Math.PI*2);ctx.fillStyle=grad;ctx.globalAlpha=.8;ctx.fill();ctx.globalAlpha=1
   }
   const allCells=[];for(const p of players){if(!p.alive)continue;for(const c of p.cells){if(c.mass>1)allCells.push({cell:c,player:p})}}
   allCells.sort((a,b)=>a.cell.mass-b.cell.mass);
   for(const {cell:c,player:p} of allCells)drawCell(c,p);
   for(const pt of particles){ctx.globalAlpha=pt.life;ctx.beginPath();ctx.arc(pt.x,pt.y,pt.radius*pt.life,0,Math.PI*2);ctx.fillStyle=pt.color;ctx.fill()}
+  }catch(e){}
   ctx.globalAlpha=1;ctx.restore();
   if(showMinimap)drawMinimap();
   // custom cursor overlay
@@ -1459,7 +1462,7 @@ spectateBtn.addEventListener('click',()=>{startSpectate()});
 // ============ DEMO MODE (main menu background) ============
 function startDemo(){
   if(isDemo)return;isDemo=true;
-  foods=[];spikes=[];superFoods=[];ejected=[];players=[];particles=[];camera={x:CFG.MAP/2-W()/2,y:CFG.MAP/2-H()/2};zoom=.8;frameCount=0;decayTimer=0;superFoodTimer=0;
+  foods=[];spikes=[];superFoods=[];ejected=[];players=[];particles=[];camera={x:CFG.MAP/2-W()/2,y:CFG.MAP/2-H()/2};zoom=.8;frameCount=0;decayTimer=0;superFoodTimer=0;gameStartTime=Date.now();foodMultLevel=0;
   const names=['小萌球','大胖球','闪电球','暗影球','火焰球','冰霜球','雷电球','旋风球','岩石球','水晶球','暗黑球','泡泡球','毒液球','弹性球','流星球','幻影球','暴走球','狂怒球','毁灭球'];
   for(let i=0;i<14;i++){const bot=createPlayer('demo_'+i,names[i%names.length],true);bot.personality=0;bot.cells=[createCell(rand(100,CFG.MAP-100),rand(100,CFG.MAP-100),rand(15,30))];players.push(bot)}
   // elite chaos bots
