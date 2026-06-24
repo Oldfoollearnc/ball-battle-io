@@ -625,14 +625,15 @@ function updateBot(p){
 
 // ============ COLLISION ============
 function processEating(){
+  const gameTimeMult=Math.min(4,1+(Date.now()-gameStartTime)/60000);
   for(let fi=foods.length-1;fi>=0;fi--){const f=foods[fi];let e=false;
-    for(const p of players){if(!p.alive)continue;for(const c of p.cells){if(c.mass<1)continue;updateRadius(c);const eatRange=c.radius*(p.buffData.eatRangeMult||1);if(dist(c,f)<eatRange){c.mass+=f.mass*.6*(p.buffData.foodGainMult||1);p.foodEaten++;spawnParticles(f.x,f.y,f.color,4,3,3);if(p===player)sfxEat();foods.splice(fi,1);e=true;break}}if(e)break}
+    for(const p of players){if(!p.alive)continue;for(const c of p.cells){if(c.mass<1)continue;updateRadius(c);const eatRange=c.radius*(p.buffData.eatRangeMult||1);if(dist(c,f)<eatRange){c.mass+=f.mass*.6*(p.buffData.foodGainMult||1)*gameTimeMult;p.foodEaten++;spawnParticles(f.x,f.y,f.color,4,3,3);if(p===player)sfxEat();foods.splice(fi,1);e=true;break}}if(e)break}
   }
   for(let si=superFoods.length-1;si>=0;si--){const sf=superFoods[si];let e=false;
-    for(const p of players){if(!p.alive)continue;for(const c of p.cells){if(c.mass<1)continue;if(dist(c,sf)<c.radius){c.mass+=sf.mass*.8*(p.buffData.superFoodGainMult||1);spawnParticles(sf.x,sf.y,'#ffd700',30,8,6);if(p===player)shakeIntensity=4;sfxEat();superFoods.splice(si,1);e=true;break}}if(e)break}
+    for(const p of players){if(!p.alive)continue;for(const c of p.cells){if(c.mass<1)continue;if(dist(c,sf)<c.radius){c.mass+=sf.mass*.8*(p.buffData.superFoodGainMult||1)*gameTimeMult;spawnParticles(sf.x,sf.y,'#ffd700',30,8,6);if(p===player)shakeIntensity=4;sfxEat();superFoods.splice(si,1);e=true;break}}if(e)break}
   }
   for(let ei=ejected.length-1;ei>=0;ei--){const e=ejected[ei];if(!e.alive)continue;e.x+=e.vx;e.y+=e.vy;e.vx*=.95;e.vy*=.95;e.life-=.016;if(e.life<=0){e.alive=false;ejected.splice(ei,1);continue}let eaten=false;
-    for(const p of players){if(!p.alive)continue;for(const c of p.cells){if(c.mass<1)continue;if(dist(c,e)<c.radius){c.mass+=e.mass*.4;ejected.splice(ei,1);eaten=true;break}}if(eaten)break}
+    for(const p of players){if(!p.alive)continue;for(const c of p.cells){if(c.mass<1)continue;if(dist(c,e)<c.radius){c.mass+=e.mass*.4*gameTimeMult;ejected.splice(ei,1);eaten=true;break}}if(eaten)break}
   }
   for(let i=0;i<players.length;i++){const a=players[i];if(!a.alive||!a.cells.length)continue;
     for(let j=i+1;j<players.length;j++){const b=players[j];if(!b.alive||!b.cells.length)continue;let brk=false;
