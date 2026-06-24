@@ -180,7 +180,7 @@ canvas{display:block;cursor:none}
     <div class="row"><label>音效</label><label class="toggle-switch"><input id="sfxToggle" type="checkbox" checked><span class="toggle-slider"></span></label></div>
     <div class="row"><label>小地图</label><label class="toggle-switch"><input id="mapToggle" type="checkbox" checked><span class="toggle-slider"></span></label></div>
     <div class="row"><label>AI 数量</label><select id="aiCount"><option value="8">少 (8)</option><option value="14" selected>中 (14)</option><option value="22">多 (22)</option></select></div>
-    <div class="row"><label>游戏模式</label><select id="gameMode"><option value="classic">经典模式</option><option value="chaos">大乱斗</option><option value="endless">无尽模式</option><option value="shovel">金铲铲模式</option></select></div>
+    <div class="row"><label>金铲铲模式</label><span style="color:rgba(255,255,255,.3);font-size:11px">每15秒选强化符文</span></div>
   </div>
   </div>
 </div>
@@ -215,7 +215,8 @@ canvas{display:block;cursor:none}
     <div class="pause-title">⏸ 游戏暂停</div>
     <div class="pause-btns">
       <button class="pause-btn primary" id="pauseResumeBtn">▶ 继续游戏</button>
-      <button class="pause-btn" id="pauseSettingsBtn">⚙ 设置</button>
+      <button class="pause-btn" id="pauseSfxBtn">🔊 音效</button>
+      <button class="pause-btn" id="pauseMapBtn">🗺 小地图</button>
       <button class="pause-btn quit" id="pauseQuitBtn">✕ 退出到菜单</button>
     </div>
     <div class="pause-hint">按 <kbd>ESC</kbd> 继续</div>
@@ -256,7 +257,7 @@ const finalKills=document.getElementById('finalKills'),expGain=document.getEleme
 const achievementsDiv=document.getElementById('achievements'),levelDisplay=document.getElementById('levelDisplay');
 const settingsBtn=document.getElementById('settingsBtn'),settingsPanel=document.getElementById('settingsPanel');
 const sfxToggle=document.getElementById('sfxToggle'),mapToggle=document.getElementById('mapToggle');
-const aiCountSel=document.getElementById('aiCount'),gameModeSel=document.getElementById('gameMode');
+const aiCountSel=document.getElementById('aiCount'),gameMode='shovel';
 const colorPicker=document.getElementById('colorPicker'),skinPicker=document.getElementById('skinPicker');
 const replayBtn=document.getElementById('replayBtn'),spectateBtn=document.getElementById('spectateBtn');
 const buffBar=document.getElementById('buffBar');
@@ -651,7 +652,7 @@ function update(){
   if(keys[' ']&&Date.now()-lastSplitTime>splitInterval){doSplit(player);lastSplitTime=Date.now()}
 
   // buff timer (金铲铲模式)
-  if(gameModeSel.value==='shovel'&&player.alive&&Date.now()-buffTimer>buffInterval){
+  if(player.alive&&Date.now()-buffTimer>buffInterval){
     buffTimer=Date.now();showBuffSelection();
   }
 
@@ -730,7 +731,7 @@ function update(){
 
   if(player.alive){
     scoreEl.textContent=`质量: ${Math.floor(totalMass(player))}  |  得分: ${Math.floor(totalMass(player)*10)}`;
-    if(gameModeSel.value==='shovel'&&buffBar){
+    if(buffBar){
       const remain=Math.max(0,Math.ceil((buffInterval-(Date.now()-buffTimer))/1000));
       if(player.ownedBuffs.length){
         const MAX_VIS=5;const show=player.ownedBuffs.slice(0,MAX_VIS);
@@ -1101,7 +1102,7 @@ function startGame(name){
 
   initAudio();
   sfxEnabled=sfxToggle.checked;showMinimap=mapToggle.checked;
-  const botCount=parseInt(aiCountSel.value),mode=gameModeSel.value;
+  const botCount=parseInt(aiCountSel.value);
 
   player=createPlayer('player',myName,false);
   if(playerData.unlocks.length)player.color=playerData.unlocks[playerData.unlocks.length-1];
@@ -1111,21 +1112,12 @@ function startGame(name){
   const botNames=['小萌球','大胖球','闪电球','暗影球','火焰球','冰霜球','雷电球','旋风球','岩石球','水晶球','暗黑球','泡泡球','毒液球','弹性球','流星球','幻影球','钢铁球','寒冰球'];
   for(let i=0;i<botCount;i++){const bot=createPlayer('bot_'+i,botNames[i%botNames.length],true);bot.cells=[createCell(rand(100,CFG.MAP-100),rand(100,CFG.MAP-100),rand(10,25))];players.push(bot)}
 
-  const spikeCount=mode==='chaos'?CFG.SPIKE_COUNT+10:CFG.SPIKE_COUNT;
-  for(let i=0;i<spikeCount;i++)spikes.push(createSpike());
+  for(let i=0;i<CFG.SPIKE_COUNT;i++)spikes.push(createSpike());
 
-  CFG.DECAY_RATE=0.004;CFG.DECAY_INTERVAL=2500;CFG.SUPER_FOOD_INTERVAL=25000;
-  if(mode==='chaos'){
-    for(let i=0;i<5;i++){const b=createPlayer('chaos_'+i,['暴走球','狂怒球','毁灭球','混沌球','暗影'][i],true);b.cells=[createCell(rand(100,CFG.MAP-100),rand(100,CFG.MAP-100),rand(20,40))];players.push(b)}
-    CFG.DECAY_INTERVAL=1500;CFG.FOOD_COUNT=500;
-  }
-  if(mode==='endless'){CFG.DECAY_RATE=0;CFG.DECAY_INTERVAL=999999;CFG.SUPER_FOOD_INTERVAL=15000}
-  if(mode==='shovel'){
-    player.buffData=createDefaultBuffData();player.ownedBuffs=[];
-    buffTimer=Date.now();buffInterval=15000;buffPickCount=0;
-    CFG.DECAY_RATE=0.003;CFG.DECAY_INTERVAL=3000;CFG.SUPER_FOOD_INTERVAL=18000;
-    for(let i=0;i<5;i++){const bot=createPlayer('shovel_'+i,['暴走球','狂怒球','毁灭球','混沌球','暗影'][i],true);bot.cells=[createCell(rand(100,CFG.MAP-100),rand(100,CFG.MAP-100),rand(20,35))];players.push(bot)}
-  }
+  player.buffData=createDefaultBuffData();player.ownedBuffs=[];
+  buffTimer=Date.now();buffInterval=15000;buffPickCount=0;
+  CFG.DECAY_RATE=0.003;CFG.DECAY_INTERVAL=3000;CFG.SUPER_FOOD_INTERVAL=18000;
+  for(let i=0;i<5;i++){const bot=createPlayer('boss_'+i,['暴走球','狂怒球','毁灭球','混沌球','暗影'][i],true);bot.cells=[createCell(rand(100,CFG.MAP-100),rand(100,CFG.MAP-100),rand(20,35))];players.push(bot)}
 
   spawnFoods();
   const lv=playerData.level;document.querySelector('#startScreen .rank').textContent=`${RANK_NAMES[getRank(lv)]} Lv.${lv}`;
@@ -1202,10 +1194,18 @@ function togglePause(){
   if(!gameRunning&&!isPaused)return;
   isPaused=!isPaused;
   document.getElementById('pauseScreen').classList.toggle('open',isPaused);
+  if(isPaused){document.getElementById('pauseSfxBtn').textContent=sfxEnabled?'🔊 音效':'🔇 音效';document.getElementById('pauseMapBtn').textContent=showMinimap?'🗺 小地图':'🚫 小地图'}
   gameRunning=!isPaused;
 }
 document.getElementById('pauseResumeBtn').addEventListener('click',()=>{if(isPaused)togglePause()});
-document.getElementById('pauseSettingsBtn').addEventListener('click',()=>{settingsPanel.classList.toggle('open')});
+document.getElementById('pauseSfxBtn').addEventListener('click',()=>{
+  sfxEnabled=!sfxEnabled;sfxToggle.checked=sfxEnabled;
+  document.getElementById('pauseSfxBtn').textContent=sfxEnabled?'🔊 音效':'🔇 音效';
+});
+document.getElementById('pauseMapBtn').addEventListener('click',()=>{
+  showMinimap=!showMinimap;mapToggle.checked=showMinimap;
+  document.getElementById('pauseMapBtn').textContent=showMinimap?'🗺 小地图':'🚫 小地图';
+});
 document.getElementById('pauseQuitBtn').addEventListener('click',()=>{
   if(isPaused)togglePause();
   quitGame();
