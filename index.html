@@ -741,7 +741,7 @@ function update(){
     for(const c of player.cells){if(c.mass<1)continue;if(dist(c,sr)<sr.radius){sr.used=true;
       const cx=player.cells.reduce((s,cl)=>s+cl.x,0)/player.cells.length,cy=player.cells.reduce((s,cl)=>s+cl.y,0)/player.cells.length;
       realmReturn={x:cx,y:cy};realmTreasures=[];const rcx=CFG.MAP*2,rcy=CFG.MAP/2;
-      for(let i=0;i<5;i++){const ang=rand(0,Math.PI*2),d=rand(40,160);realmTreasures.push({x:rcx+Math.cos(ang)*d,y:rcy+Math.sin(ang)*d,radius:14,type:['mass','speed','range'][randI(0,2)],taken:false})}
+      for(let i=0;i<15;i++){realmTreasures.push({x:rcx+rand(-1000,1000),y:rcy+rand(-1000,1000),radius:14,type:['mass','speed','range'][randI(0,2)],taken:false})}
       spawnParticles(sr.x,sr.y,'#ffd700',40,12,8);sfxEat();announce('✨ 进入秘境！收集宝藏获取加成！','#ffd700');
       inRealm=true;realmTimer=Date.now();break
     }}
@@ -750,7 +750,7 @@ function update(){
   if(inRealm&&player&&player.alive){
     const rcx=CFG.MAP*2, rcy=CFG.MAP/2;
     // teleport cells to realm on first frame
-    for(const c of player.cells){if(Math.abs(c.x-rcx)>500){c.x=rcx+rand(-50,50);c.y=rcy+rand(-50,50)}}
+    for(const c of player.cells){if(Math.abs(c.x-rcx)>1500){c.x=rcx+rand(-100,100);c.y=rcy+rand(-100,100)}}
     for(const tr of realmTreasures){if(tr.taken)continue;
       for(const c of player.cells){if(c.mass<1)continue;if(dist(c,tr)<c.radius+tr.radius){tr.taken=true;spawnParticles(tr.x,tr.y,'#ffd700',15,6,4);
         if(tr.type==='mass'){const add=rand(20,50);for(const cl of player.cells){cl.mass+=add/player.cells.length;updateRadius(cl)};announce(`💪 力量宝藏 +${add} 质量！`,'#ffd700')}
@@ -759,8 +759,8 @@ function update(){
         break;
       }}
     }
-    // auto return when all taken or 12s timeout
-    if(Date.now()-realmTimer>12000||realmTreasures.every(t=>t.taken)){
+    // auto return when all taken or 40s timeout
+    if(Date.now()-realmTimer>40000||realmTreasures.every(t=>t.taken)){
       for(const c of player.cells){c.x=realmReturn.x+rand(-30,30);c.y=realmReturn.y+rand(-30,30)}
       inRealm=false;announce('🚀 秘境探险结束，已传送回原地图！','#ffd700');spawnParticles(realmReturn.x,realmReturn.y,'#ffd700',30,8,6)
     }
@@ -895,10 +895,21 @@ function draw(){
     ctx.strokeStyle=`rgba(255,215,0,${.15+Math.sin(sr.pulse)*.1})`;ctx.lineWidth=2;ctx.setLineDash([4,6]);ctx.stroke();ctx.setLineDash([]);
     ctx.fillStyle='rgba(255,215,0,.3)';ctx.font='10px Arial';ctx.textAlign='center';ctx.fillText('秘境',sr.x,sr.y-5)
   }}
-  // realm area (separate mini-map)
+  // realm exploration map
   if(inRealm){const rcx=CFG.MAP*2,rcy=CFG.MAP/2;
-    ctx.fillStyle='rgba(20,10,40,.85)';ctx.fillRect(rcx-300,rcy-300,600,600);
-    ctx.strokeStyle='rgba(255,215,0,.2)';ctx.lineWidth=2;ctx.strokeRect(rcx-300,rcy-300,600,600);
+    // realm mystical background
+    ctx.fillStyle='rgba(15,5,35,.75)';ctx.fillRect(rcx-1600,rcy-1600,3200,3200);
+    // realm grid (purple)
+    const gs=100;ctx.strokeStyle='rgba(130,80,200,.07)';ctx.lineWidth=1;
+    for(let x=rcx-1500;x<=rcx+1500;x+=gs){ctx.beginPath();ctx.moveTo(x,rcy-1500);ctx.lineTo(x,rcy+1500);ctx.stroke()}
+    for(let y=rcy-1500;y<=rcy+1500;y+=gs){ctx.beginPath();ctx.moveTo(rcx-1500,y);ctx.lineTo(rcx+1500,y);ctx.stroke()}
+    // realm border
+    ctx.strokeStyle='rgba(255,215,0,.15)';ctx.lineWidth=3;ctx.setLineDash([8,12]);ctx.strokeRect(rcx-1500,rcy-1500,3000,3000);ctx.setLineDash([]);
+    // floating mystic particles
+    for(let i=0;i<25;i++){const px=rcx+Math.sin(frameCount*.008+i*2.5)*1400,py=rcy+Math.cos(frameCount*.012+i*1.8)*1400;
+      ctx.beginPath();ctx.arc(px,py,1.5+Math.sin(frameCount*.025+i*3)*1.2,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${(i*14+frameCount*.3)%360},60%,60%,.12)`;ctx.fill()}
+    // treasures
     for(const tr of realmTreasures){if(tr.taken)continue;
       const pr=tr.radius+Math.sin(frameCount*.05)*3;
       const tg=ctx.createRadialGradient(tr.x-3,tr.y-3,0,tr.x,tr.y,pr);
@@ -907,6 +918,9 @@ function draw(){
       ctx.shadowColor='#ffd700';ctx.shadowBlur=15;ctx.strokeStyle='rgba(255,215,0,.5)';ctx.lineWidth=2;ctx.stroke();ctx.shadowBlur=0;
       ctx.fillStyle='#fff';ctx.font='8px Arial';ctx.textAlign='center';ctx.fillText(tr.type==='mass'?'💪':tr.type==='speed'?'💨':'👁️',tr.x,tr.y+2)
     }
+    // realm timer HUD
+    const remain=Math.max(0,Math.ceil((40000-(Date.now()-realmTimer))/1000));
+    ctx.fillStyle='rgba(255,215,0,.8)';ctx.font='14px Arial';ctx.textAlign='center';ctx.fillText(`⏱ 秘境 ${remain}s`,rcx,rcy-1580)
   }
   // wormholes
   for(let i=0;i<wormholes.length;i+=2){const w1=wormholes[i],w2=wormholes[i+1];if(!w1||!w2)continue;
